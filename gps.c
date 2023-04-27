@@ -46,7 +46,9 @@ float read_GPS_data(char* gpsString) {
     //check the sign of latitude and longitude
     if (*NS == 'S'){latitude= -latitude;}
     if (*EW == 'W' ){longitude= -longitude;}
-    float data[]={latitude,longitude};
+    float *data; 
+    data[0]=latitude;
+    data[1]=longitude;
     return data;  //data[0] latitude value data[1] longitude value
 }
 

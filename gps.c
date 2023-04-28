@@ -6,7 +6,7 @@
 
 
 
-float read_GPS_data(char* gpsString) {
+float* read_GPS_data(char* gpsString) {
     
     // Split GPS string into parts
     char *token;
@@ -16,7 +16,7 @@ float read_GPS_data(char* gpsString) {
     char *NS , *EW;
     while (token != NULL) {
         count++;
-        if(count == 3) {
+        if(count == 4) {
             // Convert latitude from degrees and minutes to decimal degrees
             char degree[3], minute[10];
             strncpy(degree, token, 2);
@@ -25,10 +25,10 @@ float read_GPS_data(char* gpsString) {
             minute[8] = '\0';
             latitude = atof(degree) + atof(minute) / 60;
         }
-        else if(count == 4) {
+        else if(count == 5) {
             NS = token;
         }
-        else if (count == 5) {
+        else if (count == 6) {
             // Convert longitude from degrees and minutes to decimal degrees
             char degree[4], minute[10];
             strncpy(degree, token, 3);
@@ -37,7 +37,7 @@ float read_GPS_data(char* gpsString) {
             minute[8] = '\0';
             longitude = atof(degree) + atof(minute) / 60;
         }
-        else if(count == 6) {
+        else if(count == 7) {
             EW = token;
         }
         token = strtok(NULL, ",");
@@ -46,7 +46,7 @@ float read_GPS_data(char* gpsString) {
     //check the sign of latitude and longitude
     if (*NS == 'S'){latitude= -latitude;}
     if (*EW == 'W' ){longitude= -longitude;}
-    float *data; 
+    float* data = malloc(2 * sizeof(float)); 
     data[0]=latitude;
     data[1]=longitude;
     return data;  //data[0] latitude value data[1] longitude value

@@ -70,24 +70,25 @@ double distance_inMeter(double KM_dis){
     return KM_dis*1000;
 }
     
-int GPS_validate(char *nmeastr){
+int gpsValidate(char *gpsString){
     char check[3];
     char checkcalcstr[3];
+    char *AV;
     int i;
     int calculated_check;
-
+    int checksumcheck , AVcheck;
     i=0;
     calculated_check=0;
 
     // check to ensure that the string starts with a $
-    if(nmeastr[i] == '$')
+    if(gpsString[i] == '$')
         i++;
     else
         return 0;
 
     //No NULL reached, 75 char largest possible NMEA message, no '*' reached
-    while((nmeastr[i] != 0) && (nmeastr[i] != '*') && (i < 75)){
-        calculated_check ^= nmeastr[i];// calculate the checksum
+    while((gpsString[i] != 0) && (gpsString[i] != '*') && (i < 75)){
+        calculated_check ^= gpsString[i];// calculate the checksum
         i++;
     }
 
@@ -95,18 +96,32 @@ int GPS_validate(char *nmeastr){
         return 0;// the string was too long so return an error
     }
 
-    if (nmeastr[i] == '*'){
-        check[0] = nmeastr[i+1];    //put hex chars in check string
-        check[1] = nmeastr[i+2];
+    if (gpsString[i] == '*'){
+        check[0] = gpsString[i+1];    //put hex chars in check string
+        check[1] = gpsString[i+2];
         check[2] = 0;
     }
     else
         return 0;// no checksum separator found there for invalid
 
     sprintf(checkcalcstr,"%02X",calculated_check);
-    return((checkcalcstr[0] == check[0])
-        && (checkcalcstr[1] == check[1])) ? 1 : 0 ;
-}    
+    checksumcheck = ((checkcalcstr[0] == check[0]) && (checkcalcstr[1] == check[1])) ? 1 : 0 ;
+    
+    char *token;
+    token = strtok(gpsString, ",");
+    int count = 0;
+    
+    while (token != NULL) {
+        count++;
+        if (count == 3){ 
+            AV = token;
+        }
+        token = strtok(NULL, ",");
+    }
+    AVcheck = (*AV=='A') ? 1 : 0;
+    return(checksumcheck && AVcheck)? 1 : 0; 
+    
+} 
     
     
 //...........................................................................................................................

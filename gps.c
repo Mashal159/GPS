@@ -6,50 +6,55 @@
 
 
 
-float* read_GPS_data(char* gpsString) {
+void read_GPS_data(char* gpsString, float* latitude, float* longitude, float* time, float* speed) {
     
     // Split GPS string into parts
     char *token;
     token = strtok(gpsString, ",");
     int count = 0;
-    float latitude, longitude;
     char *NS , *EW;
+    
     while (token != NULL) {
         count++;
-        if(count == 4) {
+        switch (count) {
+        case 2:
+            *time = atof(token);
+            break;
+        case 4:
             // Convert latitude from degrees and minutes to decimal degrees
-            char degree[3], minute[10];
-            strncpy(degree, token, 2);
-            strncpy(minute, token + 2, 8);
-            degree[2] = '\0';
-            minute[8] = '\0';
-            latitude = atof(degree) + atof(minute) / 60;
-        }
-        else if(count == 5) {
+            char degree1[3], minute1[10];
+            strncpy(degree1, token, 2);
+            strncpy(minute1, token + 2, 8);
+            degree1[2] = '\0';
+            minute1[8] = '\0';
+            *latitude = atof(degree1) + atof(minute1) / 60;
+            break;
+        case 5:
             NS = token;
-        }
-        else if (count == 6) {
+            break;
+        case 6:
             // Convert longitude from degrees and minutes to decimal degrees
-            char degree[4], minute[10];
-            strncpy(degree, token, 3);
-            strncpy(minute, token + 3, 8);
-            degree[3] = '\0';
-            minute[8] = '\0';
-            longitude = atof(degree) + atof(minute) / 60;
-        }
-        else if(count == 7) {
+            char degree2[4], minute2[10];
+            strncpy(degree2, token, 3);
+            strncpy(minute2, token + 3, 8);
+            degree2[3] = '\0';
+            minute2[8] = '\0';
+            *longitude = atof(degree2) + atof(minute2) / 60;
+            break;
+            
+        case 7:
             EW = token;
-        }
+            break;
+        case 8:
+            *speed = atof(token) * 0.514444;
+            break;}
         token = strtok(NULL, ",");
         
     }
     //check the sign of latitude and longitude
-    if (*NS == 'S'){latitude= -latitude;}
-    if (*EW == 'W' ){longitude= -longitude;}
-    float* data = malloc(2 * sizeof(float)); 
-    data[0]=latitude;
-    data[1]=longitude;
-    return data;  //data[0] latitude value data[1] longitude value
+    if (*NS == 'S'){*latitude= -*latitude;}
+    if (*EW == 'W' ){*longitude= -*longitude;}
+    float* data = malloc(4 * sizeof(float)); 
 }
 
 double toRadians(double degrees) {
